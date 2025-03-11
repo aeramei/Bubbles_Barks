@@ -22,47 +22,98 @@ public class MainMethods {
     }
 
     public void addService() {
-        try {
-            // Ask for customer information
-            System.out.println("===================================");
-            System.out.println("         ADD NEW SERVICE           ");
-            System.out.println("===================================");
-            System.out.print("Enter customer name: ");
-            String name = scanner.nextLine().trim();
+        System.out.println("===================================");
+        System.out.println("         ADD NEW SERVICE           ");
+        System.out.println("===================================");
 
-            System.out.print("Enter contact number: ");
-            String contactNumber = scanner.nextLine().trim();
-
-            System.out.println("Available Pet Types:");
-            for (PetType type : PetType.values()) {
-                System.out.println("- " + type);
+        // Step 1: Ask for customer name
+        String name = "";
+        while (true) {
+            try {
+                System.out.print("Enter customer name: ");
+                name = scanner.nextLine().trim();
+                if (name.isEmpty()) {
+                    throw new IllegalArgumentException("Customer name cannot be empty. Please enter a valid name.");
+                }
+                break; // Exit the loop if the name is valid
+            } catch (IllegalArgumentException e) {
+                System.out.println("\nError: " + e.getMessage());
             }
-            System.out.print("Enter pet type: ");
-            String petTypeInput = scanner.nextLine().trim().toUpperCase();
-            PetType petType = PetType.valueOf(petTypeInput);
-
-            System.out.println("Available Services:");
-            for (ServiceType type : ServiceType.values()) {
-                System.out.println("- " + type + " ($" + services.getPrice(type) + ")");
-            }
-            System.out.print("Enter service type: ");
-            String serviceTypeInput = scanner.nextLine().trim().toUpperCase();
-            ServiceType serviceType = ServiceType.valueOf(serviceTypeInput);
-
-            Customer customer = new Customer(name, contactNumber, petType, serviceType);
-            customers.add(customer);
-
-            // the result
-            System.out.println("\n===================================");
-            System.out.println("     Now, service added successfully    ");
-            System.out.println("===================================");
-            customer.displayInfo();
-            System.out.println("===================================");
-        } catch (IllegalArgumentException e) {
-            System.out.println("\nInvalid input! Please enter a valid pet type or service type.");
-        } catch (Exception e) {
-            System.out.println("\nAn error occurred: " + e.getMessage());
         }
+
+        // Step 2: Ask for contact number
+        String contactNumber = "";
+        while (true) {
+            try {
+                System.out.print("Enter contact number: ");
+                contactNumber = scanner.nextLine().trim();
+                if (contactNumber.isEmpty()) {
+                    throw new IllegalArgumentException("Contact number cannot be empty. Please enter a valid number.");
+                }
+                break; // Exit the loop if the contact number is valid
+            } catch (IllegalArgumentException e) {
+                System.out.println("\nError: " + e.getMessage());
+            }
+        }
+
+        // Step 3: Ask for pet type
+        PetType petType = null;
+        while (true) {
+            try {
+                System.out.println("Available Pet Types:");
+                for (PetType type : PetType.values()) {
+                    System.out.println("- " + type);
+                }
+                System.out.print("Enter pet type: ");
+                String petTypeInput = scanner.nextLine().trim().toUpperCase();
+                petType = PetType.valueOf(petTypeInput); // Convert input to PetType enum
+                break; // Exit the loop if the pet type is valid
+            } catch (IllegalArgumentException e) {
+                System.out.println("\nError: Invalid pet type. Please choose from the available options.");
+            }
+        }
+
+        // Step 4: Ask for service type
+        ServiceType serviceType = null;
+        while (true) {
+            try {
+                System.out.println("Available Services:");
+                for (ServiceType type : ServiceType.values()) {
+                    System.out.println("- " + type + " ($" + services.getPrice(type) + ")");
+                }
+                System.out.print("Enter service type: ");
+                String serviceTypeInput = scanner.nextLine().trim().toUpperCase();
+                serviceType = ServiceType.valueOf(serviceTypeInput); // Convert input to ServiceType enum
+                break; // Exit the loop if the service type is valid
+            } catch (IllegalArgumentException e) {
+                System.out.println("\nError: Invalid service type. Please choose from the available options.");
+            }
+        }
+
+        // Step 5: Create and add the customer to the queue
+        Customer customer = new Customer(name, contactNumber, petType, serviceType);
+        customers.add(customer);
+
+        // Step 6: Display success message and customer details
+        System.out.println("\n===================================");
+        System.out.println("     Now, service added successfully    ");
+        System.out.println("===================================");
+        customer.displayInfo();
+        System.out.println("===================================");
+
+        // Step 7: Show how many customers are in front of the newly added customer
+        int position = 0;
+        for (Customer c : customers) {
+            if (c.equals(customer)) {
+                break;
+            }
+            position++;
+        }
+        System.out.println("\nNumber of customers in front of you: " + position);
+        System.out.println("===================================");
+
+        // Step 8: Show the updated queue list
+        showQueueList();
     }
 
     public void showQueueList() {
@@ -91,14 +142,25 @@ public class MainMethods {
             System.out.println("         UPDATE SERVICE            ");
             System.out.println("===================================");
 
-            // Ask for customer information to identify the customer
-            System.out.print("Enter the name of the customer to update: ");
-            String name = scanner.nextLine().trim();
+            // Step 1: Ask for customer phone number
+            String contactNumber = "";
+            while (true) {
+                try {
+                    System.out.print("Enter the contact number of the customer to update: ");
+                    contactNumber = scanner.nextLine().trim();
+                    if (contactNumber.isEmpty()) {
+                        throw new IllegalArgumentException("Contact number cannot be empty. Please enter a valid number.");
+                    }
+                    break; // Exit the loop if the contact number is valid
+                } catch (IllegalArgumentException e) {
+                    System.out.println("\nError: " + e.getMessage());
+                }
+            }
 
-            // Search for the customer in the queue
+            // Step 2: Search for the customer in the queue by phone number
             Customer customerToUpdate = null;
             for (Customer customer : customers) {
-                if (customer.name.equalsIgnoreCase(name)) {
+                if (customer.contactNumber.equals(contactNumber)) {
                     customerToUpdate = customer;
                     break;
                 }
@@ -107,31 +169,37 @@ public class MainMethods {
             if (customerToUpdate == null) {
                 System.out.println("\nCustomer not found in the queue.");
             } else {
-                // Display current service information
+                // Step 3: Display current service information
                 System.out.println("\nCurrent Service Information:");
                 customerToUpdate.displayInfo();
 
-                // Ask for the new service type
-                System.out.println("\nAvailable Services:");
-                for (ServiceType type : ServiceType.values()) {
-                    System.out.println("- " + type + " ($" + services.getPrice(type) + ")");
+                // Step 4: Ask for the new service type
+                ServiceType newServiceType = null;
+                while (true) {
+                    try {
+                        System.out.println("\nAvailable Services:");
+                        for (ServiceType type : ServiceType.values()) {
+                            System.out.println("- " + type + " ($" + services.getPrice(type) + ")");
+                        }
+                        System.out.print("Enter the new service type: ");
+                        String serviceTypeInput = scanner.nextLine().trim().toUpperCase();
+                        newServiceType = ServiceType.valueOf(serviceTypeInput); // Convert input to ServiceType enum
+                        break; // Exit the loop if the service type is valid
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("\nError: Invalid service type. Please choose from the available options.");
+                    }
                 }
-                System.out.print("Enter the new service type: ");
-                String serviceTypeInput = scanner.nextLine().trim().toUpperCase();
-                ServiceType newServiceType = ServiceType.valueOf(serviceTypeInput);
 
-                // Update the customer's service type
+                // Step 5: Update the customer's service type
                 customerToUpdate.serviceType = newServiceType;
 
-                // Output the result
+                // Step 6: Output the result
                 System.out.println("\n===================================");
                 System.out.println("     SERVICE IS UPDATED SUCCESSFULLY FOR CUSTOMER. Hee Hee ");
                 System.out.println("===================================");
                 customerToUpdate.displayInfo();
                 System.out.println("===================================");
             }
-        } catch (IllegalArgumentException e) {
-            System.out.println("\nInvalid input! Please enter a valid service type.");
         } catch (NullPointerException e) {
             System.out.println("\nError: A null value was encountered.");
         } catch (ConcurrentModificationException e) {
@@ -219,10 +287,6 @@ public class MainMethods {
                 }
             }
 
-            // Re-add the Sorted Requests to the Queue (Optional)
-            customers.clear();
-            customers.addAll(customerList);
-
             // Display the Sorted List
             System.out.println("\nSorted Service Requests by Price (Lowest to Highest):");
             int count = 1;
@@ -260,14 +324,25 @@ public class MainMethods {
                 return;
             }
 
-            // Step 2: Ask for Required Information
-            System.out.print("Enter the name of the customer to search: ");
-            String name = scanner.nextLine().trim();
+            // Step 2: Ask for customer phone number
+            String contactNumber = "";
+            while (true) {
+                try {
+                    System.out.print("Enter the contact number of the customer to search: ");
+                    contactNumber = scanner.nextLine().trim();
+                    if (contactNumber.isEmpty()) {
+                        throw new IllegalArgumentException("Contact number cannot be empty. Please enter a valid number.");
+                    }
+                    break; // Exit the loop if the contact number is valid
+                } catch (IllegalArgumentException e) {
+                    System.out.println("\nError: " + e.getMessage());
+                }
+            }
 
-            // Step 3: Perform Linear Search
+            // Step 3: Perform Linear Search by phone number
             boolean found = false;
             for (Customer customer : customers) {
-                if (customer.name.equalsIgnoreCase(name)) {
+                if (customer.contactNumber.equals(contactNumber)) {
                     // Step 4: Output the Result (Customer Found)
                     System.out.println("\nCustomer Found:");
                     customer.displayInfo();
