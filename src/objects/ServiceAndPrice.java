@@ -3,10 +3,11 @@ package objects;
 import java.util.EnumMap;
 
 public class ServiceAndPrice {
-    public EnumMap<ServiceType, Double> services = new EnumMap<>(ServiceType.class);
+    // Use a static EnumMap to store service prices
+    private static final EnumMap<ServiceType, Double> services = new EnumMap<>(ServiceType.class);
 
-    public ServiceAndPrice() {
-        // Adding prices for each service
+    // Static block to initialize the service prices
+    static {
         services.put(ServiceType.Bathing, 20.0);
         services.put(ServiceType.Grooming, 30.0);
         services.put(ServiceType.NailTrimming, 15.0);
@@ -16,7 +17,8 @@ public class ServiceAndPrice {
         services.put(ServiceType.Massage, 50.0);
     }
 
-    public double getPrice(ServiceType service) {
+    // Static method to get the price of a service
+    public static double getPrice(ServiceType service) {
         return services.getOrDefault(service, 0.0);
     }
 }
