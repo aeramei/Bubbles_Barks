@@ -1,6 +1,6 @@
 package objects;
 
-public class Customer {
+public class Customer implements Comparable<Customer> {
     public String name;
     public String contactNumber;
     public PetType petType;
@@ -37,5 +37,14 @@ public class Customer {
         System.out.println("-----------------------------------");
         System.out.println("Thank you for choosing our service!");
         System.out.println("===================================");
+    }
+
+    // Implement the Comparable interface to define natural ordering
+    @Override
+    public int compareTo(Customer other) {
+        // Compare customers based on service price (lower price has higher priority)
+        double thisPrice = ServiceAndPrice.getPrice(this.serviceType);
+        double otherPrice = ServiceAndPrice.getPrice(other.serviceType);
+        return Double.compare(thisPrice, otherPrice);
     }
 }
